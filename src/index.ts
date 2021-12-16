@@ -20,6 +20,12 @@ export async function updateDNS(): Promise<boolean> {
     );
     return result;
 }
+export async function getCurrentDNS(): Promise<string> {
+    const domainName = process.env.DOMAIN_NAME;
+    if (!domainName) throw new Error("Invalid Dotenv");
+    const result = await cloudflare.getDNSIP(domainName);
+    return result;
+}
 if (require.main === module) {
     init().then(() => {
         updateDNS().then(result => {

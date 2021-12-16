@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.init = exports.updateDNS = void 0;
+exports.init = exports.getDNSIP = exports.updateDNS = void 0;
 var axios_1 = __importDefault(require("axios"));
 var options = {};
 function updateDNS(recordIdentifier, domainName, ip) {
@@ -74,6 +74,33 @@ function updateDNS(recordIdentifier, domainName, ip) {
     });
 }
 exports.updateDNS = updateDNS;
+function getDNSIP(domainName) {
+    return __awaiter(this, void 0, void 0, function () {
+        var url, response, record;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    if (!options.zoneID || !options.authToken)
+                        throw new Error("Not initialized");
+                    url = "https://api.cloudflare.com/client/v4/zones/" + options.zoneID + "/dns_records?name=" + domainName;
+                    return [4 /*yield*/, axios_1.default.get(url, {
+                            headers: {
+                                Authorization: "Bearer " + options.authToken,
+                                "Content-Type": "application/json",
+                            },
+                        })];
+                case 1:
+                    response = _a.sent();
+                    if (response.status !== 200) {
+                        return [2 /*return*/, ""];
+                    }
+                    record = response.data.result[0];
+                    return [2 /*return*/, record.content];
+            }
+        });
+    });
+}
+exports.getDNSIP = getDNSIP;
 function init(zoneID, authToken) {
     options.zoneID = zoneID;
     options.authToken = authToken;

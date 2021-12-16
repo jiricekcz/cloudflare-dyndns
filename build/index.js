@@ -100,6 +100,7 @@ function updateDNS() {
 exports.updateDNS = updateDNS;
 if (require.main === module) {
     init().then(function () {
+        cloudflare.getDNSIP("office.jiri.pro").then(console.log);
         updateDNS().then(function (result) {
             console.log(result);
         });
