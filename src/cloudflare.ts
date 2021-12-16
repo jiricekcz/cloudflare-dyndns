@@ -31,7 +31,7 @@ export async function updateDNS(
 }
 export async function getDNSIP(domainName: string): Promise<string> {
 	if (!options.zoneID || !options.authToken) throw new Error("Not initialized");
-	const url = `https://api.cloudflare.com/client/v4/zones/${options.zoneID}/dns_records?name=${domainName}`;
+	const url = `https://api.cloudflare.com/client/v4/zones/${options.zoneID}/dns_records?name=${domainName}&type=A`;
 	const response = await axios.get(url, {
 		headers: {
 			Authorization: `Bearer ${options.authToken}`,

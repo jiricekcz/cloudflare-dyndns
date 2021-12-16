@@ -58,10 +58,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateDNS = exports.init = void 0;
+exports.getCurrentDNS = exports.updateDNS = exports.init = void 0;
 var cloudflare = __importStar(require("./cloudflare"));
 var ip_1 = __importDefault(require("./ip"));
 var dotenv_1 = __importDefault(require("dotenv"));
+var node_cron_1 = __importDefault(require("node-cron"));
+var currentDNS = "";
 function init() {
     return __awaiter(this, void 0, void 0, function () {
         var zoneID, authToken;
@@ -77,20 +79,24 @@ function init() {
     });
 }
 exports.init = init;
-function updateDNS() {
+function updateDNS(ip) {
     return __awaiter(this, void 0, void 0, function () {
-        var ip, domainName, recordIdentifier, result;
+        var domainName, recordIdentifier, result;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, ip_1.default()];
+                case 0:
+                    if (!!ip) return [3 /*break*/, 2];
+                    return [4 /*yield*/, ip_1.default()];
                 case 1:
                     ip = _a.sent();
+                    _a.label = 2;
+                case 2:
                     domainName = process.env.DOMAIN_NAME;
                     recordIdentifier = process.env.CLOUDFLARE_RECORD_IDENTIFIER;
                     if (!domainName || !recordIdentifier)
                         throw new Error("Invalid Dotenv");
                     return [4 /*yield*/, cloudflare.updateDNS(recordIdentifier, domainName, ip)];
-                case 2:
+                case 3:
                     result = _a.sent();
                     return [2 /*return*/, result];
             }
@@ -98,12 +104,52 @@ function updateDNS() {
     });
 }
 exports.updateDNS = updateDNS;
+function getCurrentDNS() {
+    return __awaiter(this, void 0, void 0, function () {
+        var domainName, result;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    domainName = process.env.DOMAIN_NAME;
+                    if (!domainName)
+                        throw new Error("Invalid Dotenv");
+                    return [4 /*yield*/, cloudflare.getDNSIP(domainName)];
+                case 1:
+                    result = _a.sent();
+                    return [2 /*return*/, result];
+            }
+        });
+    });
+}
+exports.getCurrentDNS = getCurrentDNS;
 if (require.main === module) {
     init().then(function () {
-        cloudflare.getDNSIP("office.jiri.pro").then(console.log);
-        updateDNS().then(function (result) {
-            console.log(result);
-        });
+        node_cron_1.default.schedule("*/" + process.env.EVERY_SECOND + " * * * * *", function () { return __awaiter(void 0, void 0, void 0, function () {
+            var ip;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, ip_1.default()];
+                    case 1:
+                        ip = _a.sent();
+                        console.log("IP:", ip);
+                        if (!!currentDNS) return [3 /*break*/, 3];
+                        return [4 /*yield*/, getCurrentDNS()];
+                    case 2:
+                        currentDNS = _a.sent();
+                        _a.label = 3;
+                    case 3:
+                        if (!(currentDNS !== ip)) return [3 /*break*/, 5];
+                        console.log("Updating DNS");
+                        currentDNS = "";
+                        return [4 /*yield*/, updateDNS(ip)];
+                    case 4:
+                        _a.sent();
+                        console.log("Updated DNS");
+                        _a.label = 5;
+                    case 5: return [2 /*return*/];
+                }
+            });
+        }); });
     });
 }
 //# sourceMappingURL=index.js.map

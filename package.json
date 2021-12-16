@@ -18,8 +18,10 @@
   "homepage": "https://github.com/jiricekcz/cloudflare-dyndns#readme",
   "dependencies": {
     "@types/axios": "^0.14.0",
+    "@types/node-cron": "^3.0.0",
     "axios": "^0.24.0",
-    "dotenv": "^10.0.0"
+    "dotenv": "^10.0.0",
+    "node-cron": "^3.0.0"
   },
   "devDependencies": {
     "@types/node": "^17.0.0"

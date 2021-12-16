@@ -1,6 +1,9 @@
 import * as cloudflare from "./cloudflare";
 import getPublicIP from "./ip";
 import dotenv from "dotenv";
+import cron from "node-cron";
+
+var currentDNS: string = "";
 export async function init(): Promise<void> {
     dotenv.config();
     const zoneID = process.env.CLOUDFLARE_ZONE_ID;
@@ -8,8 +11,8 @@ export async function init(): Promise<void> {
     if (!zoneID || !authToken) throw new Error("Invalid Dotenv");
     cloudflare.init(zoneID, authToken);
 }
-export async function updateDNS(): Promise<boolean> {
-    const ip = await getPublicIP();
+export async function updateDNS(ip?: string): Promise<boolean> {
+    if (!ip) ip = await getPublicIP();
     const domainName = process.env.DOMAIN_NAME;
     const recordIdentifier = process.env.CLOUDFLARE_RECORD_IDENTIFIER;
     if (!domainName || !recordIdentifier) throw new Error("Invalid Dotenv");
@@ -28,8 +31,16 @@ export async function getCurrentDNS(): Promise<string> {
 }
 if (require.main === module) {
     init().then(() => {
-        updateDNS().then(result => {
-            console.log(result);
+        cron.schedule(`*/${process.env.EVERY_SECOND} * * * * *`, async () => {
+            const ip = await getPublicIP();
+            console.log("IP:", ip);
+            if (!currentDNS) currentDNS = await getCurrentDNS();
+            if (currentDNS !== ip) {
+                console.log("Updating DNS");
+                currentDNS = "";
+                await updateDNS(ip);
+                console.log("Updated DNS");
+            }
         });
     });
 }

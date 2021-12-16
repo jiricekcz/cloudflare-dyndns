@@ -82,7 +82,7 @@ function getDNSIP(domainName) {
                 case 0:
                     if (!options.zoneID || !options.authToken)
                         throw new Error("Not initialized");
-                    url = "https://api.cloudflare.com/client/v4/zones/" + options.zoneID + "/dns_records?name=" + domainName;
+                    url = "https://api.cloudflare.com/client/v4/zones/" + options.zoneID + "/dns_records?name=" + domainName + "&type=A";
                     return [4 /*yield*/, axios_1.default.get(url, {
                             headers: {
                                 Authorization: "Bearer " + options.authToken,
