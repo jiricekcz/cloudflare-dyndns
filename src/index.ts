@@ -33,10 +33,9 @@ if (require.main === module) {
     init().then(() => {
         cron.schedule(`*/${process.env.EVERY_SECOND} * * * * *`, async () => {
             const ip = await getPublicIP();
-            console.log("IP:", ip);
             if (!currentDNS) currentDNS = await getCurrentDNS();
             if (currentDNS !== ip) {
-                console.log("Updating DNS");
+                console.log("Updating DNS with ip " + ip);
                 currentDNS = "";
                 await updateDNS(ip);
                 console.log("Updated DNS");
