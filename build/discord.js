@@ -39,71 +39,76 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.init = exports.getDNSIP = exports.updateDNS = void 0;
-var axios_1 = __importDefault(require("axios"));
-var options = {};
-function updateDNS(recordIdentifier, domainName, ip) {
-    return __awaiter(this, void 0, void 0, function () {
-        var url, response;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    if (!options.zoneID || !options.authToken)
-                        throw new Error("Not initialized");
-                    url = "https://api.cloudflare.com/client/v4/zones/" + options.zoneID + "/dns_records/" + recordIdentifier;
-                    return [4 /*yield*/, axios_1.default.put(url, {
-                            type: "A",
-                            name: domainName,
-                            content: ip,
-                            ttl: 1,
-                            proxied: false,
-                        }, {
-                            headers: {
-                                Authorization: "Bearer " + options.authToken,
-                                "Content-Type": "application/json",
-                            },
-                        })];
-                case 1:
-                    response = _a.sent();
-                    if (response.status !== 200) {
-                        return [2 /*return*/, false];
-                    }
-                    return [2 /*return*/, true];
-            }
+exports.standbyUseUser = exports.sendMessage = exports.getUser = exports.standby = exports.init = exports.inited = exports.client = void 0;
+var discord_js_1 = __importDefault(require("discord.js"));
+exports.client = new discord_js_1.default.Client({
+    intents: [discord_js_1.default.Intents.FLAGS.GUILDS],
+});
+exports.inited = false;
+function init() {
+    return new Promise(function (resolve, reject) {
+        exports.client.once("ready", function () {
+            exports.inited = true;
+            resolve();
         });
+        if (!process.env.DISCORD_TOKEN)
+            throw new Error("Invalid Dotenv");
+        exports.client.login(process.env.DISCORD_TOKEN);
     });
-}
-exports.updateDNS = updateDNS;
-function getDNSIP(domainName) {
-    return __awaiter(this, void 0, void 0, function () {
-        var url, response, record;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    if (!options.zoneID || !options.authToken)
-                        throw new Error("Not initialized");
-                    url = "https://api.cloudflare.com/client/v4/zones/" + options.zoneID + "/dns_records?name=" + domainName + "&type=A";
-                    return [4 /*yield*/, axios_1.default.get(url, {
-                            headers: {
-                                Authorization: "Bearer " + options.authToken,
-                                "Content-Type": "application/json",
-                            },
-                        })];
-                case 1:
-                    response = _a.sent();
-                    if (response.status !== 200) {
-                        return [2 /*return*/, ""];
-                    }
-                    record = response.data.result[0];
-                    return [2 /*return*/, record.content];
-            }
-        });
-    });
-}
-exports.getDNSIP = getDNSIP;
-function init(zoneID, authToken) {
-    options.zoneID = zoneID;
-    options.authToken = authToken;
 }
 exports.init = init;
-//# sourceMappingURL=cloudflare.js.map
+function standby() {
+    exports.inited = false;
+    exports.client.destroy();
+}
+exports.standby = standby;
+function getUser() {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            if (!process.env.DISCORD_USER_ID)
+                throw new Error("Invalid Dotenv");
+            return [2 /*return*/, exports.client.users.fetch(process.env.DISCORD_USER_ID)];
+        });
+    });
+}
+exports.getUser = getUser;
+function sendMessage(message) {
+    return __awaiter(this, void 0, void 0, function () {
+        var user;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, getUser()];
+                case 1:
+                    user = _a.sent();
+                    user.send(message);
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+exports.sendMessage = sendMessage;
+function standbyUseUser(callback) {
+    return __awaiter(this, void 0, void 0, function () {
+        var user;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    if (!!exports.inited) return [3 /*break*/, 2];
+                    return [4 /*yield*/, init()];
+                case 1:
+                    _a.sent();
+                    _a.label = 2;
+                case 2: return [4 /*yield*/, getUser()];
+                case 3:
+                    user = _a.sent();
+                    return [4 /*yield*/, callback(user)];
+                case 4:
+                    _a.sent();
+                    standby();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+exports.standbyUseUser = standbyUseUser;
+//# sourceMappingURL=discord.js.map

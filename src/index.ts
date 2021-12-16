@@ -1,7 +1,10 @@
+
 import * as cloudflare from "./cloudflare";
 import getPublicIP from "./ip";
 import dotenv from "dotenv";
 import cron from "node-cron";
+import * as discord from "./discord";
+
 
 var currentDNS: string = "";
 export async function init(): Promise<void> {
@@ -35,6 +38,9 @@ if (require.main === module) {
                 currentDNS = "";
                 await updateDNS(ip);
                 console.log("Updated DNS");
+                await discord.standbyUseUser(async user => {
+                    await user.send(`Updated DNS for ${process.env.DOMAIN_NAME} to ${ip}.`);
+                })
             }
         });
         cron.schedule("*/30 * * * * *", async () => {

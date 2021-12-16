@@ -63,6 +63,7 @@ var cloudflare = __importStar(require("./cloudflare"));
 var ip_1 = __importDefault(require("./ip"));
 var dotenv_1 = __importDefault(require("dotenv"));
 var node_cron_1 = __importDefault(require("node-cron"));
+var discord = __importStar(require("./discord"));
 var currentDNS = "";
 function init() {
     return __awaiter(this, void 0, void 0, function () {
@@ -137,15 +138,27 @@ if (require.main === module) {
                         currentDNS = _a.sent();
                         _a.label = 3;
                     case 3:
-                        if (!(currentDNS !== ip)) return [3 /*break*/, 5];
+                        if (!(currentDNS !== ip)) return [3 /*break*/, 6];
                         console.log("Updating DNS with ip " + ip);
                         currentDNS = "";
                         return [4 /*yield*/, updateDNS(ip)];
                     case 4:
                         _a.sent();
                         console.log("Updated DNS");
-                        _a.label = 5;
-                    case 5: return [2 /*return*/];
+                        return [4 /*yield*/, discord.standbyUseUser(function (user) { return __awaiter(void 0, void 0, void 0, function () {
+                                return __generator(this, function (_a) {
+                                    switch (_a.label) {
+                                        case 0: return [4 /*yield*/, user.send("Updated DNS for " + process.env.DOMAIN_NAME + " to " + ip + ".")];
+                                        case 1:
+                                            _a.sent();
+                                            return [2 /*return*/];
+                                    }
+                                });
+                            }); })];
+                    case 5:
+                        _a.sent();
+                        _a.label = 6;
+                    case 6: return [2 /*return*/];
                 }
             });
         }); });
