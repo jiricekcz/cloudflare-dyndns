@@ -1,0 +1,27 @@
+{
+  "name": "cloudflare-dyndns",
+  "version": "1.0.0",
+  "description": "Dynamic DNS server for cloudflare",
+  "main": "./build/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jiricekcz/cloudflare-dyndns.git"
+  },
+  "author": "jiricekcz",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jiricekcz/cloudflare-dyndns/issues"
+  },
+  "homepage": "https://github.com/jiricekcz/cloudflare-dyndns#readme",
+  "dependencies": {
+    "@types/axios": "^0.14.0",
+    "axios": "^0.24.0",
+    "dotenv": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.0"
+  }
+}
