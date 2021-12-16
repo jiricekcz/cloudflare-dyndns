@@ -16,11 +16,7 @@ export async function updateDNS(ip?: string): Promise<boolean> {
     const domainName = process.env.DOMAIN_NAME;
     const recordIdentifier = process.env.CLOUDFLARE_RECORD_IDENTIFIER;
     if (!domainName || !recordIdentifier) throw new Error("Invalid Dotenv");
-    const result = await cloudflare.updateDNS(
-        recordIdentifier,
-        domainName,
-        ip
-    );
+    const result = await cloudflare.updateDNS(recordIdentifier, domainName, ip);
     return result;
 }
 export async function getCurrentDNS(): Promise<string> {
@@ -40,6 +36,9 @@ if (require.main === module) {
                 await updateDNS(ip);
                 console.log("Updated DNS");
             }
+        });
+        cron.schedule("*/30 * * * * *", async () => {
+            currentDNS = "";
         });
     });
 }

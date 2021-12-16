@@ -131,7 +131,6 @@ if (require.main === module) {
                     case 0: return [4 /*yield*/, ip_1.default()];
                     case 1:
                         ip = _a.sent();
-                        console.log("IP:", ip);
                         if (!!currentDNS) return [3 /*break*/, 3];
                         return [4 /*yield*/, getCurrentDNS()];
                     case 2:
@@ -139,7 +138,7 @@ if (require.main === module) {
                         _a.label = 3;
                     case 3:
                         if (!(currentDNS !== ip)) return [3 /*break*/, 5];
-                        console.log("Updating DNS");
+                        console.log("Updating DNS with ip " + ip);
                         currentDNS = "";
                         return [4 /*yield*/, updateDNS(ip)];
                     case 4:
@@ -148,6 +147,12 @@ if (require.main === module) {
                         _a.label = 5;
                     case 5: return [2 /*return*/];
                 }
+            });
+        }); });
+        node_cron_1.default.schedule("*/30 * * * * *", function () { return __awaiter(void 0, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                currentDNS = "";
+                return [2 /*return*/];
             });
         }); });
     });
