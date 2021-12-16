@@ -15,7 +15,7 @@ export async function updateDNS(
             name: domainName,
             content: ip,
             ttl: 1,
-            proxied: true,
+            proxied: false,
         },
         {
             headers: {
